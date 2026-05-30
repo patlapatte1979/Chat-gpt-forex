@@ -15,6 +15,14 @@ out/
 .env.local
 .env.*.local
 
+# Local market datasets and generated simulation outputs
+# Keep large/licensed historical candles out of GitHub.
+data/historical/
+data/simulated/
+*.parquet
+*.sqlite
+*.db
+
 # Logs
 *.log
 npm-debug.log*
