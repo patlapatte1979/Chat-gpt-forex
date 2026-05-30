@@ -7,10 +7,5 @@
     "build": "npm --prefix dashboard run build",
     "lint": "npm --prefix dashboard run lint",
     "postinstall": "npm --prefix dashboard install"
-  },
-  "dependencies": {
-    "next": "16.2.6",
-    "react": "19.2.6",
-    "react-dom": "19.2.6"
   }
 }
