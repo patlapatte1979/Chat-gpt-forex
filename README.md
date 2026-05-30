@@ -84,17 +84,6 @@ vercel
 vercel --prod
 ```
 
-### Réglages Vercel à vérifier
-
-Pour ce dépôt, garder ces réglages dans Vercel :
-
-- Root Directory : `.` (racine du dépôt)
-- Install Command : `npm install`
-- Build Command : `npm run build`
-- Output Directory : `dashboard/.next`
-
-Si le log Vercel affiche encore `postinstall > npm --prefix dashboard install`, Vercel est en train de construire un ancien commit. Relancer le déploiement sur le dernier commit.
-
 ## Architecture multi-agents
 
 Le `MasterAgent` appelle les agents spécialisés, additionne les scores, construit un plan de trade de démonstration et transmet le tout au `RiskManager`.
