@@ -1,0 +1,18 @@
+agents:
+  technical:
+    enabled: true
+    weight: 0.35
+  fundamental:
+    enabled: true
+    weight: 0.2
+  news:
+    enabled: true
+    weight: 0.2
+  sentiment:
+    enabled: true
+    weight: 0.15
+  correlation:
+    enabled: true
+    weight: 0.1
+mode: COPILOT
+autonomous_demo_enabled: false
