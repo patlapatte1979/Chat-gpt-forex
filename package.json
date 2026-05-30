@@ -3,16 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm --workspace dashboard run dev",
-    "build": "npm --workspace dashboard run build",
-    "lint": "npm --workspace dashboard run lint"
-  },
-  "dependencies": {
-    "next": "16.2.6",
-    "react": "19.2.6",
-    "react-dom": "19.2.6"
-  },
-  "workspaces": [
-    "dashboard"
-  ]
+    "dev": "npm --prefix dashboard run dev",
+    "build": "npm --prefix dashboard run build",
+    "lint": "npm --prefix dashboard run lint",
+    "postinstall": "npm --prefix dashboard install"
+  }
 }
