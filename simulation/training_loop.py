@@ -14,16 +14,24 @@ from agents.risk_manager import AccountState
 from simulation.market_universe import TradingStyle, get_style_profile
 from simulation.no_lookahead_replay import Candle, NoLookaheadReplay
 from simulation.paper_broker import DemoOrder, PaperBroker, Side
+from simulation.time_acceleration import ReplayClock, ReplaySpeedConfig, build_batch_speed
 
 
 def run_replay_training(
     candles: Iterable[Candle],
     symbol: str,
     style: TradingStyle = TradingStyle.DAY_TRADING,
+    speed_config: ReplaySpeedConfig | None = None,
 ) -> dict[str, object]:
-    """Run a no-lookahead paper-trading replay for one symbol."""
+    """Run a no-lookahead paper-trading replay for one symbol.
+
+    Use VISUAL x1..x100 for dashboard animation. Use BATCH for fastest training.
+    Speed controls only affect waiting time; they never change data order and
+    never expose future candles to agents.
+    """
     profile = get_style_profile(style)
     replay = NoLookaheadReplay(candles, window_size=max(profile.min_history_bars, 250))
+    clock = ReplayClock(speed_config or build_batch_speed())
     agent = MasterAgent()
     broker = PaperBroker()
     decisions: list[dict[str, object]] = []
@@ -45,28 +53,28 @@ def run_replay_training(
         )
         decision["time"] = step.current.time.isoformat()
         decision["trading_style"] = style.value
+        decision["replay_speed"] = clock.config.label
         decisions.append(decision)
 
-        if not decision.get("approved"):
-            continue
-        if decision.get("decision") not in {"BUY", "SELL"}:
-            continue
+        if decision.get("approved") and decision.get("decision") in {"BUY", "SELL"}:
+            broker.place_order(
+                DemoOrder(
+                    symbol=symbol,
+                    side=Side(str(decision["decision"])),
+                    lot_size=float(decision["lot_size"]),
+                    stop_loss=float(decision["stop_loss"]),
+                    take_profit=float(decision["take_profit"]),
+                    risk_cad=float(decision["risk_cad"]),
+                    strategy=style.value,
+                ),
+                step.current,
+            )
 
-        broker.place_order(
-            DemoOrder(
-                symbol=symbol,
-                side=Side(str(decision["decision"])),
-                lot_size=float(decision["lot_size"]),
-                stop_loss=float(decision["stop_loss"]),
-                take_profit=float(decision["take_profit"]),
-                risk_cad=float(decision["risk_cad"]),
-                strategy=style.value,
-            ),
-            step.current,
-        )
+        clock.wait_after_step()
 
     return {
         "mode": "PAPER_DEMO_REPLAY_NO_LOOKAHEAD",
+        "replay_speed": clock.config.label,
         "symbol": symbol,
         "style": style.value,
         "starting_balance": broker.account.starting_balance,
